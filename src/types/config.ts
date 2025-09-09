@@ -26,6 +26,8 @@ export type SiteConfig = {
 	background: {
 		enable: boolean;
 		src: string;
+		portraitSrc?: string; // 竖屏背景图片
+		landscapeSrc?: string; // 横屏背景图片
 		position?: "top" | "center" | "bottom";
 		size?: "cover" | "contain" | "auto";
 		repeat?: "no-repeat" | "repeat" | "repeat-x" | "repeat-y";
