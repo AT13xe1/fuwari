@@ -35,6 +35,8 @@ export const siteConfig: SiteConfig = {
 	background: {
 		enable: true, // Enable background image
 		src: "https://pic.at13xe.top/h", // Background image URL (supports HTTPS)
+		portraitSrc: "https://pic.at13xe.top/v", // 竖屏背景图片 URL
+		landscapeSrc: "https://pic.at13xe.top/h", // 横屏背景图片 URL
 		position: "center", // Background position: 'top', 'center', 'bottom'
 		size: "cover", // Background size: 'cover', 'contain', 'auto'
 		repeat: "no-repeat", // Background repeat: 'no-repeat', 'repeat', 'repeat-x', 'repeat-y'
