@@ -125,7 +125,7 @@ const bannerOffset =
 		))}
 
 		<!-- Set the theme before the page is rendered to avoid a flash -->
-		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue, forceDarkMode: siteConfig.themeColor.forceDarkMode}}>
+		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, PAGE_WIDTH, configHue, forceDarkMode: siteConfig.themeColor.forceDarkMode, bgPortraitUrl: siteConfig.background.portraitSrc, bgLandscapeUrl: siteConfig.background.landscapeSrc}}>
 			// Force dark mode if configured
 			if (forceDarkMode) {
 				document.documentElement.classList.add('dark');
@@ -162,9 +162,39 @@ const bannerOffset =
 			const bgUrl = getComputedStyle(document.documentElement).getPropertyValue('--bg-url').trim();
 			const bgEnable = getComputedStyle(document.documentElement).getPropertyValue('--bg-enable').trim();
 			
-			if (bgUrl && bgUrl !== 'none' && bgEnable === '1') {
+			// 屏幕方向检测和背景切换
+			function updateBackgroundForOrientation() {
+				const width = window.innerWidth;
+				const height = window.innerHeight;
+				const isPortrait = width <= height;
+				
+				// 移除之前的方向类
+				document.body.classList.remove('portrait', 'landscape');
+				
+				// 添加新的方向类
+				if (isPortrait) {
+					document.body.classList.add('portrait');
+				} else {
+					document.body.classList.add('landscape');
+				}
+				
+				// 加载对应方向的背景图片
+				const orientationBgUrl = isPortrait ? 
+					getComputedStyle(document.documentElement).getPropertyValue('--bg-portrait-url').trim() :
+					getComputedStyle(document.documentElement).getPropertyValue('--bg-landscape-url').trim();
+				
+				// 如果有特定方向的背景图片，则使用它
+				if (orientationBgUrl && orientationBgUrl !== 'none') {
+					loadBackgroundImage(orientationBgUrl);
+				} else if (bgUrl && bgUrl !== 'none') {
+					// 否则使用默认背景图片
+					loadBackgroundImage(bgUrl);
+				}
+			}
+			
+			function loadBackgroundImage(cssUrl) {
 				const img = new Image();
-				const urlMatch = bgUrl.match(/url\(["']?([^"')]+)["']?\)/);
+				const urlMatch = cssUrl.match(/url\(["']?([^"')]+)["']?\)/);
 				if (urlMatch) {
 					img.onload = function() {
 						// 背景图片完全加载后，显示背景并启用卡片透明效果
@@ -179,11 +209,26 @@ const bannerOffset =
 					img.src = urlMatch[1];
 				}
 			}
+			
+			// 初始设置背景
+			if (bgEnable === '1') {
+				updateBackgroundForOrientation();
+				
+				// 监听窗口大小变化和屏幕方向变化
+				window.addEventListener('resize', updateBackgroundForOrientation);
+				
+				// 如果浏览器支持屏幕方向API，也监听方向变化
+				if (window.screen && window.screen.orientation) {
+					window.screen.orientation.addEventListener('change', updateBackgroundForOrientation);
+				}
+			}
 		</script>
 		<style define:vars={{
 			configHue,
 			'page-width': `${PAGE_WIDTH}rem`,
 			'bg-url': siteConfig.background.src ? `url(${siteConfig.background.src})` : 'none',
+			'bg-portrait-url': siteConfig.background.portraitSrc ? `url(${siteConfig.background.portraitSrc})` : 'none',
+			'bg-landscape-url': siteConfig.background.landscapeSrc ? `url(${siteConfig.background.landscapeSrc})` : 'none',
 			'bg-enable': siteConfig.background.enable ? '1' : '0',
 			'bg-position': siteConfig.background.position || 'center',
 			'bg-size': siteConfig.background.size || 'cover',
@@ -193,6 +238,8 @@ const bannerOffset =
 		}}>
 			:root {
 				--bg-url: var(--bg-url);
+				--bg-portrait-url: var(--bg-portrait-url);
+				--bg-landscape-url: var(--bg-landscape-url);
 				--bg-enable: var(--bg-enable);
 				--bg-position: var(--bg-position);
 				--bg-size: var(--bg-size);
@@ -204,6 +251,8 @@ const bannerOffset =
 			/* Background image configuration */
 			body {
 				--bg-url: var(--bg-url);
+				--bg-portrait-url: var(--bg-portrait-url);
+				--bg-landscape-url: var(--bg-landscape-url);
 				--bg-enable: var(--bg-enable);
 				--bg-position: var(--bg-position);
 				--bg-size: var(--bg-size);
@@ -229,6 +278,14 @@ const bannerOffset =
 				z-index: -1 !important;
 				display: block !important;
 				transition: opacity 0.3s ease-in-out !important;
+			}
+			
+			body.portrait::before {
+				background-image: var(--bg-portrait-url) !important;
+			}
+			
+			body.landscape::before {
+				background-image: var(--bg-landscape-url) !important;
 			}
 			
 			body.bg-loaded::before {
