@@ -197,8 +197,7 @@ const bannerOffset =
 				const urlMatch = cssUrl.match(/url\(["']?([^"')]+)["']?\)/);
 				if (urlMatch) {
 					img.onload = function() {
-						// 背景图片完全加载后，显示背景并启用卡片透明效果
-						document.body.classList.add('bg-loaded');
+						// 背景图片完全加载后，启用卡片透明效果
 						document.documentElement.style.setProperty('--card-bg', 'var(--card-bg-transparent)');
 						document.documentElement.style.setProperty('--float-panel-bg', 'var(--float-panel-bg-transparent)');
 					};
@@ -212,6 +211,9 @@ const bannerOffset =
 			
 			// 初始设置背景
 			if (bgEnable === '1') {
+				// 立即添加bg-loaded类，确保背景可见
+				document.body.classList.add('bg-loaded');
+				
 				updateBackgroundForOrientation();
 				
 				// 监听窗口大小变化和屏幕方向变化
@@ -237,15 +239,7 @@ const bannerOffset =
 			'bg-opacity': (siteConfig.background.opacity || 0.3).toString()
 		}}>
 			:root {
-				--bg-url: var(--bg-url);
-				--bg-portrait-url: var(--bg-portrait-url);
-				--bg-landscape-url: var(--bg-landscape-url);
-				--bg-enable: var(--bg-enable);
-				--bg-position: var(--bg-position);
-				--bg-size: var(--bg-size);
-				--bg-repeat: var(--bg-repeat);
-				--bg-attachment: var(--bg-attachment);
-				--bg-opacity: var(--bg-opacity);
+				/* These variables are already defined by define:vars above */
 			}
 			
 			/* Background image configuration */
